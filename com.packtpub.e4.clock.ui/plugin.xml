@@ -1,0 +1,279 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+
+   <extension
+         point="org.eclipse.ui.views">
+      <category
+            name="Timekeeping"
+            id="com.packtpub.e4.clock.ui">
+      </category>
+      <view
+            name="Clock View"
+            icon="icons/sample.gif"
+            category="com.packtpub.e4.clock.ui"
+            class="com.packtpub.e4.clock.ui.views.ClockView"
+            id="com.packtpub.e4.clock.ui.views.ClockView">
+      </view>
+      <view
+            category="com.packtpub.e4.clock.ui"
+            class="com.packtpub.e4.clock.ui.views.TimeZoneView"
+            icon="icons/sample.gif"
+            id="com.packtpub.e4.clock.ui.views.TimeZoneView"
+            name="Time Zone View"
+            restorable="true">
+      </view>
+      <view
+            category="com.packtpub.e4.clock.ui"
+            class="com.packtpub.e4.clock.ui.views.TimeZoneTreeView"
+            icon="icons/sample.gif"
+            id="com.packtpub.e4.clock.ui.TimeZoneTreeView"
+            name="Time Zone Tree View"
+            restorable="true">
+      </view>
+      <!-- NOTE: page 100 add TableView -->
+      <view
+            category="com.packtpub.e4.clock.ui"
+            class="com.packtpub.e4.clock.ui.views.TimeZoneTableView"
+            icon="icons/sample.gif"
+            id="com.packtpub.e4.clock.ui.views.TimeZoneTableView"
+            name="Time Zone Table View"
+            restorable="true">
+      </view>
+   </extension>
+
+	<!-- NOTE: page 97 register TimeZoneAdapterFactory -->
+	<extension point="org.eclipse.core.runtime.adapters">
+		<factory 
+			adaptableType="java.util.TimeZone"
+			class= "com.packtpub.e4.clock.ui.internal.TimeZoneAdapterFactory">
+			<adapter type="org.eclipse.ui.views.properties.IPropertySource"/>
+		</factory>
+	</extension>
+	
+	<!-- NOTE: page 111 creating commands and handlers
+		This creates a command, which is just an identifier and a name. To specify
+		what it does, it must be connected to a handler, which is done by adding
+		the extension at page 112
+	-->
+	<extension point="org.eclipse.ui.commands">
+		<command 
+			name="Hello"
+			description="Says Hello World"
+			id="com.packtpub.e4.clock.ui.command.hello"/>
+	</extension>
+	
+	
+	<!-- NOTE: page 112 register a handler to a command 
+		a specific handler was defined for the command, which is valid in all
+		contexts. The handler's class is the implementation; the command ID is the reference.
+	-->
+	<extension point="org.eclipse.ui.handlers">
+		<handler 
+			class="com.packtpub.e4.clock.ui.handlers.HelloHandler"
+			commandId="com.packtpub.e4.clock.ui.command.hello">
+			<enabledWhen>
+				<reference definitionId="when.hello.is.active"/>
+			</enabledWhen>			
+		</handler>			
+	</extension>
+	
+	<!-- NOTE: page 112
+		The command's ID com.packtpub.e4.clock.ui.command.hello is used
+		to refer to it from menus or other locations. To place the contribution in an
+		existing menu structure, it needs to be specified by its locationURI, which is
+		a URL that begins with menu: such as menu:window?after=additions or
+		menu:file?after=additions. To place it in the Help menu, add this to the
+		plugin.xml file	
+		
+		The org.eclipse.ui.menus extension point allows menuContributions to be added
+		anywhere in the user interface. To address where the menu can be contributed to, the
+		locationURI object defines where the menu item can be created. The syntax for the URI is
+		as follows:
+		 menu: 			Menus begin with the menu: protocol (can also be toolbar: or popup:)
+		 identifier: 	This can be a known short name (such as file, window, and
+						help), the global menu (org.eclipse.ui.main.menu), the global toolbar
+						(org.eclipse.ui.main.toolbar), a view identifier (org.eclipse.
+						ui.views.ContentOutline), or an ID explicitly defined in a pop-up menu's
+						registerContextMenu() call.
+		 ?after(or before)=key: 
+						This is the placement instruction to put this after or
+						before other items; typically additions is used as an extensible location for others to
+						contribute to.			
+	
+	<extension point="org.eclipse.ui.menus">
+		<menuContribution 
+			allPopups="false"	
+			locationURI="menu:help?after=additions">
+			<command 
+				commandId="com.packtpub.e4.clock.ui.command.hello"
+				label="Hello"
+				style="push">
+			</command>
+		</menuContribution>
+	</extension>
+	-->	
+	<!-- NOTE: page 114 binding commands to keys
+		To hook up the command to a keystroke a binding is used. This allows a key (or series of keys)
+		to be used to invoke the command, instead of only via the menu. Bindings are set up via an
+		extension point org.eclipse.ui.bindings, and connect a sequence of keystrokes to a
+		command ID.	
+		
+		The M1 key is the primary meta key, which is Cmd on OS X and Ctrl on Windows/Linux.
+		This is typically used for the main operations; for example M1 + C is copy and M1 + V is
+		paste on all systems. The sequence notation M1 + 9 is used to indicate pressing both
+		keys at the same time.
+		The command that gets invoked is referenced by its commandId. This may be defined in the
+		same plug-in, but does not have to be; it is possible for one application to provide a set of
+		commands and another plug-in to provide keystrokes that bind them.
+		It is also possible to set up a sequence of key presses; for example, M1 + 9 8 7 would
+		require pressing Cmd + 9 or Ctrl + 9 followed by 8 and then 7 before the command is
+		executed. This allows a set of keystrokes to be used to invoke a command; for example, it's
+		possible to emulate an Emacs quit operation with the keybinding Ctrl + X Ctrl + C to
+		the quit command.
+		Other modifier keys include M2 (Shift), M3 (Alt/Option), and M4 (Ctrl on OS X). It is possible to
+		use CTRL, SHIFT, or ALT as long names, but the meta names are preferred, since M1 tends
+		to be bound to different keys on different operating systems.
+		
+		The non-modifier keys themselves can either be single characters (A to Z), numbers
+		(0 to 9), or one of a set of longer name key-codes, such as F12, ARROW_UP, TAB, and
+		PAGE_UP. Certain common variations are allowed; for example, ESC/ESCAPE, ENTER/
+		RETURN, and so on.
+		Finally, bindings are associated with a scheme, which in the default case should be org.
+		eclipse.ui.defaultAcceleratorConfiguration. Schemes exist to allow the user
+		to switch in and out of keybindings and replace them with others, which is how tools like
+		"vrapper" (a vi emulator) and the Emacs bindings that come with Eclipse by default can be
+		used. (This can be changed via Window | Preferences | Keys menu in Eclipse.)		
+	
+	<extension point="org.eclipse.ui.bindings">
+		<key 
+			commandId="com.packtpub.e4.clock.ui.command.hello"
+			sequence="M1+9"
+			contextId="org.eclipse.ui.contexts.window"
+			schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"/>
+	</extension>
+	-->
+	
+	<!-- NOTE: page 115 Changing context
+		The context is the location in which this binding is valid. For commands that are visible
+		everywhere—typically the kind of options in the default menu—they can be associated with
+		the org.eclipse.ui.contexts.window context. If the command should also be invoked
+		from dialogs as well, then the org.eclipse.ui.context.dialogAndWindow context
+		would be used instead.
+			
+		To enable the command only for Java editors, modify contextId as below
+		
+		The available contexts can be seen by editing the plugin.xml file in the plug-in editor; in
+		the extensions tab the binding shows an editor window with a form:
+		Clicking on the Browse… button next to the contextId brings up a dialog, which presents the
+		available contexts:
+				
+		It's also possible to find out all the contexts programmatically or via the running OSGi
+		instance, by navigating to Window | Show View | Console, and then using New Host
+		OSGi Console in the drop-down menu, and then running the following code snippet:
+		osgi> pt -v org.eclipse.ui.contexts		
+	-->
+	<extension point="org.eclipse.ui.bindings">
+		<key 
+			commandId="com.packtpub.e4.clock.ui.command.hello"
+			sequence="M1+9"
+			contextId="org.eclipse.jdt.ui.javaEditorScope"
+			schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"/>
+	</extension>
+	
+	
+	<!-- NOTE: page 118 enabling and disabling the menu's items
+		The previous section showed how to hide or show a specific keybinding depending on the
+		open editor type. However, it doesn't stop the command being called via the menu, or from
+		it showing up in the menu itself. Instead of just hiding the keybinding, the menu can be
+		hidden as well by adding a visibleWhen block to the command.
+	
+		Menus have a visibleWhen guard that is evaluated when the menu is shown. If it is false,
+		the menu is hidden.
+		The expressions syntax is based on nested XML elements with certain conditions. For
+		example, an <and> block is true if all of its children are true, whereas an <or> block is
+		true if one of its children is true. Variables can also be used with a property test using
+		a combination of a <with> block (which binds the specified variable to the stack) and an
+		<equals> block or other comparison.
+		In the case of variables that have lists, an <iterate> can be used to step through elements
+		using either operator="or" or operator="and" to dynamically calculate enablement.
+		To find out if a list contains an element, a combination of <iterate> and <equals>
+		operators is the standard pattern.
+		There are a number of variables that can be used in tests; these are listed in the Eclipse
+		help documentation under the Workbench Core Expressions chapter, and include the
+		following variables:
+			activeContexts: List of context IDs that are active at the time
+			activeShell: The active shell (dialog or window)
+			activeWorkbenchWindow: The active window
+			activeEditor: The current or last active editor
+			activePart: The active part (editor or view)
+			selection: The current selection
+			org.eclipse.core.runtime.Platform: The Platform object
+		The Platform object is useful for performing dynamic tests using test, such as the following:
+			<test value="ACTIVE"
+				property="org.eclipse.core.runtime.bundleState"
+				args="org.eclipse.core.expressions"/>
+			<test
+				property="org.eclipse.core.runtime.isBundleInstalled"
+				args="org.eclipse.core.expressions"/>
+				
+		Knowing if a bundle is installed is often useful; it's better to only enable functionality if a
+		bundle is started (or in OSGi terminology, ACTIVE). As a result, use of isBundleInstalled
+		has been replaced by the bundleState=ACTIVE tests.				
+	
+	<extension point="org.eclipse.ui.menus">
+		<menuContribution allPopups="false"	locationURI="menu:help?after=additions">
+			<command commandId="com.packtpub.e4.clock.ui.command.hello"	label="Hello" style="push">
+				<visibleWhen>
+					<with variable="activeContexts">
+						<iterate operator="or">
+							<equals value="org.eclipse.jdt.ui.javaEditorScope"/>
+						</iterate>
+					</with>
+				</visibleWhen>
+			</command>
+		</menuContribution>
+	</extension>
+	-->
+	<!-- NOTE: page 120 Resuing expressions
+	Declare an expression using the expression's extension point. then
+	To use the <definition/>, the enablement expressions needs to use the <reference />
+	-->
+	<extension point="org.eclipse.core.expressions.definitions">
+		<definition id="when.hello.is.active">
+			<with variable="activeContexts">
+				<iterate operator="or">
+					<equals value="org.eclipse.jdt.ui.javaEditorScope"/>
+				</iterate>
+			</with>
+		</definition>
+	</extension>
+		
+	<extension point="org.eclipse.ui.menus">
+		<menuContribution allPopups="false"	locationURI="menu:help?after=additions">
+		<command commandId="com.packtpub.e4.clock.ui.command.hello"	label="Hello" style="push">
+			<visibleWhen>
+				<reference definitionId="when.hello.is.active"/>
+			</visibleWhen>
+		</command>
+		</menuContribution>
+	</extension>
+	<!--
+		Now that the reference has been defined, it can be used to modify the handler as
+		well, so that the handler and menu become active and visible together. Add the
+		following to the Hello handler in the plugin.xml file: See NOTE: page 112 in this file
+		
+		The adventage of this is should the enablement change, it can be done in one place
+			
+		<extension point="org.eclipse.ui.handlers">
+			<handler class="com.packtpub.e4.clock.ui.handlers.HelloHandler"
+				commandId="com.packtpub.e4.clock.ui.command.hello">
+				
+				<enabledWhen>
+					<reference definitionId="when.hello.is.active"/>
+				</enabledWhen>
+				
+			</handler>
+		</extension>		
+	-->	
+</plugin>
