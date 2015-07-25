@@ -4,6 +4,7 @@ import java.net.URL;
 import java.util.TimeZone;
 
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.resource.FontRegistry;
 import org.eclipse.jface.resource.ImageDescriptor;
@@ -21,6 +22,7 @@ import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerFilter;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.part.ViewPart;
 import org.eclipse.ui.views.properties.IPropertySource;
@@ -324,10 +326,35 @@ public class TimeZoneTreeView extends ViewPart {
 				.getPart());
 		getSite().getWorkbenchWindow().getSelectionService()
 				.addSelectionListener(selectionListener);
+		
+		// NOTE: page 122 enable to Pop-up menu. See different impl in TimeZoneTableView
+		hookContextMenu(treeViewer);
 	}
 
 	public void setFocus() {
 		treeViewer.getControl().setFocus();
 	}
 
+	// NOTE: page 122 Contributing commands to Pop-up menu
+	// It's useful to be able to add contributions to pop-up menus so that they
+	// can be used by
+	// different places. Fortunately, this can be done fairly easily with the
+	// menuContribution
+	// element and a combination of enablement tests. This allows the removal of
+	// the Action
+	// introduced in the first part of this chapter with a more generic command
+	// and handler pairing.
+	// There is a deprecated extension point—which still works in Eclipse 4.2
+	// today—called
+	// objectContribution, which is a single specialized hook for contributing a
+	// pop-up menu
+	// to an object. This has been deprecated for some time, but often older
+	// tutorials or examples
+	// may refer to it.
+	private void hookContextMenu(Viewer viewer) {
+		MenuManager manager = new MenuManager("#PopupMenu");
+		Menu menu = manager.createContextMenu(viewer.getControl());
+		viewer.getControl().setMenu(menu);
+		getSite().registerContextMenu(manager, viewer);
+	}
 }

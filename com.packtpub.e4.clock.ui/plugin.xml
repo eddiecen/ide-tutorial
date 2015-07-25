@@ -275,5 +275,36 @@
 				
 			</handler>
 		</extension>		
-	-->	
+	-->
+	<!-- NOTE: page 122 show context menu (Pop-up)
+	
+	-->
+	<extension point="org.eclipse.ui.commands">
+		<command 
+			name="Show the Time" 
+			description="Shows the Time"
+			id="com.packtpub.e4.clock.ui.command.showTheTime"/>
+	</extension>
+	<extension point="org.eclipse.ui.handlers">
+		<handler 
+			class="com.packtpub.e4.clock.ui.handlers.ShowTheTime"
+			commandId="com.packtpub.e4.clock.ui.command.showTheTime"/>
+	</extension>
+	<!-- NOTE: page 123: Finally, to hook it up, a menu needs to be added to the special locationURI
+				popup:org.eclipse.ui.popup.any.
+	-->
+	<extension point="org.eclipse.ui.menus">
+		<menuContribution allPopups="false"	locationURI="popup:org.eclipse.ui.popup.any">
+			<command label="Show the Time" style="push"
+				commandId="com.packtpub.e4.clock.ui.command.showTheTime">
+				<visibleWhen checkEnabled="false">
+					<with variable="selection">
+						<iterate ifEmpty="false">
+							<adapt type="java.util.TimeZone"/>
+						</iterate>
+					</with>
+				</visibleWhen>
+			</command>
+		</menuContribution>
+	</extension>	
 </plugin>

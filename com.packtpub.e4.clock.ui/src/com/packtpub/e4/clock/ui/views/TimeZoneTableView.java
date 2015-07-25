@@ -7,6 +7,7 @@ import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.TableViewer;
+import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Menu;
@@ -31,8 +32,7 @@ public class TimeZoneTableView extends ViewPart {
 
 	public void dispose() {
 		if (selectionListener != null) {
-			getSite().getWorkbenchWindow().getSelectionService()
-					.removeSelectionListener(selectionListener);
+			getSite().getWorkbenchWindow().getSelectionService().removeSelectionListener(selectionListener);
 			selectionListener = null;
 		}
 		super.dispose();
@@ -93,31 +93,55 @@ public class TimeZoneTableView extends ViewPart {
 
 		// NOTE: page 106
 		// The selection listeners need to be registered with the views.
-		selectionListener = new TimeZoneSelectionListener(tableViewer,
-				getSite().getPart());
-		getSite().getWorkbenchWindow().getSelectionService()
-				.addSelectionListener(selectionListener);
+		selectionListener = new TimeZoneSelectionListener(tableViewer, getSite().getPart());
+		getSite().getWorkbenchWindow().getSelectionService().addSelectionListener(selectionListener);
 
 		// NOTE: page 110 adding context menus
-		MenuManager manager = new MenuManager("#PopupMenu");
-		Menu menu = manager.createContextMenu(tableViewer.getControl());
-		tableViewer.getControl().setMenu(menu);
-
-		// NOTE: page 106
-		// If the Menu is empty, the MenuManager won't show any content, so this
-		// currently
-		// has no effect. To demonstrate this, an Action will be added to the
-		// Menu
-		Action deprecated = new Action() {
-			public void run() {
-				MessageDialog.openInformation(null, "Hello", "World");
-			}
-		};
-		deprecated.setText("Hello");
-		manager.add(deprecated);
+//		MenuManager manager = new MenuManager("#PopupMenu");
+//		Menu menu = manager.createContextMenu(tableViewer.getControl());
+//		tableViewer.getControl().setMenu(menu);
+//
+//		// NOTE: page 106
+//		// If the Menu is empty, the MenuManager won't show any content, so this
+//		// currently
+//		// has no effect. To demonstrate this, an Action will be added to the
+//		// Menu
+//		Action deprecated = new Action() {
+//			public void run() {
+//				MessageDialog.openInformation(null, "Hello", "World");
+//			}
+//		};
+//		deprecated.setText("Hello");
+//		manager.add(deprecated);
+		// NOTE: page 122 adding context menu (Pop-up) new way
+		// Itself won't show the Hello menu, need to update plugin.xml
+		hookContextMenu(tableViewer);
 	}
 
 	public void setFocus() {
 		tableViewer.getControl().setFocus();
+	}
+
+	// NOTE: page 122 Contributing commands to Pop-up menu
+	// It's useful to be able to add contributions to pop-up menus so that they
+	// can be used by
+	// different places. Fortunately, this can be done fairly easily with the
+	// menuContribution
+	// element and a combination of enablement tests. This allows the removal of
+	// the Action
+	// introduced in the first part of this chapter with a more generic command
+	// and handler pairing.
+	// There is a deprecated extension point—which still works in Eclipse 4.2
+	// today—called
+	// objectContribution, which is a single specialized hook for contributing a
+	// pop-up menu
+	// to an object. This has been deprecated for some time, but often older
+	// tutorials or examples
+	// may refer to it.
+	private void hookContextMenu(Viewer viewer) {
+		MenuManager manager = new MenuManager("#PopupMenu");
+		Menu menu = manager.createContextMenu(viewer.getControl());
+		viewer.getControl().setMenu(menu);
+		getSite().registerContextMenu(manager, viewer);
 	}
 }
