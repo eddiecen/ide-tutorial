@@ -292,6 +292,8 @@
 	</extension>
 	<!-- NOTE: page 123: Finally, to hook it up, a menu needs to be added to the special locationURI
 				popup:org.eclipse.ui.popup.any.
+		This allows the menu to be added to any pop-up menu that uses a MenuManager and when the selection
+		contains a TimeZone.
 	-->
 	<extension point="org.eclipse.ui.menus">
 		<menuContribution allPopups="false"	locationURI="popup:org.eclipse.ui.popup.any">

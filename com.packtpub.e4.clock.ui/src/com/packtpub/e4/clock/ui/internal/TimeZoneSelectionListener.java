@@ -54,16 +54,32 @@ public class TimeZoneSelectionListener implements ISelectionListener {
 
 	public void selectionChanged(IWorkbenchPart p, ISelection sel) {
 		// Ignore the event if it was fired by the same part
-		// Get the selected object from the event and compare it with the current one
-		// If different, and the selected object is a TimeZone, update the viewer
+		// Get the selected object from the event and compare it with the
+		// current one
+		// If different, and the selected object is a TimeZone, update the
+		// viewer
+
+		// fix selection is not IStructuredSelection, like TextSelection
 		if (p != this.part) {
-			Object selected = ((IStructuredSelection) sel).getFirstElement();
-			Object current = ((IStructuredSelection) viewer.getSelection())
-					.getFirstElement();
-			if (selected != current && selected instanceof TimeZone) {
-				viewer.setSelection(sel);
-				if (viewer instanceof StructuredViewer) {
-					((StructuredViewer) viewer).reveal(selected);
+			Object selected = null;
+			Object current = null;
+
+			if (sel instanceof IStructuredSelection) {
+				selected = ((IStructuredSelection) sel).getFirstElement();
+			}
+
+			current = viewer.getSelection();
+
+			if (current != null && current instanceof IStructuredSelection) {
+				current = ((IStructuredSelection) viewer.getSelection()).getFirstElement();
+			}
+
+			if (selected != null && current != null) {
+				if (selected != current && selected instanceof TimeZone) {
+					viewer.setSelection(sel);
+					if (viewer instanceof StructuredViewer) {
+						((StructuredViewer) viewer).reveal(selected);
+					}
 				}
 			}
 		}
